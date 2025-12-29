@@ -1,0 +1,15 @@
+//   Add this to the .cursorrules file to activate the MCP servers.
+{
+    "mcpServers": {
+      "docker": {
+        "command": "uv",
+        "args": ["run", "--with", "docker-mcp", "docker-mcp", "--access-mode=unrestricted"],
+        "env": { "DOCKER_HOST": "npipe:////./pipe/docker_engine" }
+      },
+      "postgres": {
+        "command": "uv",
+        "args": ["run", "--with", "postgres-mcp", "postgres-mcp", "--access-mode=unrestricted"],
+        "env": { "DATABASE_URI": "postgresql://app:app@localhost:5432/demo" }
+      }
+    }
+  }
