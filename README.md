@@ -8,6 +8,9 @@ By the end of this project, you will:
 - Manage schemas and users conversationally
 - Load and analyze large datasets
 - Introspect and visualize database structure
+- Build dbt models with prompt-driven development
+- Run data quality tests and fix issues conversationally
+- Document data models with AI assistance
 - Perform analytics directly from Cursor chat
 
 ---
@@ -20,7 +23,9 @@ By the end of this project, you will:
 | **uv** | Fast Python environment + MCP runner |
 | **Docker MCP** | Infrastructure control via prompts |
 | **Postgres MCP** | SQL execution & schema introspection |
+| **dbt MCP** | Transformations, testing & documentation |
 | **PostgreSQL** | Analytical data store |
+| **dbt** | Data transformation & modeling framework |
 
 ---
 
@@ -106,6 +111,13 @@ Add the following to Cursor’s **Tools & MCPs** configuration:
       "env": {
         "DATABASE_URI": "postgresql://app:app@localhost:5432/demo"
       }
+    },
+    "dbt": {
+      "command": "uv",
+      "args": ["run", "--with", "dbt-postgres", "dbt-mcp"],
+      "env": {
+        "DBT_PROJECT_DIR": "./MCP_dbt"
+      }
     }
   }
 }
@@ -114,7 +126,7 @@ Add the following to Cursor’s **Tools & MCPs** configuration:
 ### Activate MCPs
 1. Restart Cursor  
 2. Open **Tools & MCPs**  
-3. Ensure **docker** and **postgres** show green indicators   
+3. Ensure **docker**, **postgres**, and **dbt** show green indicators   
 
 ---
 
@@ -201,6 +213,66 @@ Replaces:
 
 ---
 
+### dbt Model Development & Testing
+
+This project includes a **dbt project** (`MCP_dbt/`) with analytical models built using prompts.
+
+#### Run dbt Models
+
+```text
+Using the DBT MCP, run the customer_analytics model 
+and summarize the results concisely in a table.
+```
+
+The `customer_analytics` model creates a **customer 360 view** with:
+- Lifetime value calculations
+- Order frequency metrics
+- Customer segmentation (inactive, occasional, regular, VIP)
+- Favorite product categories
+- Customer lifecycle metrics
+
+#### Run Data Quality Tests
+
+```text
+Using the DBT MCP, run all tests for the customer_analytics model
+and show me the results
+```
+
+Tests validate:
+- Not null constraints
+- Unique constraints
+- Accepted values for segments
+- Data quality rules
+
+#### Fix Failing Tests with AI Assistance
+
+```text
+Fix the failing test(s) in my customer_analytics model. Update the model
+file to resolve the issue and explain what you changed.
+```
+
+Cursor will:
+- Identify the root cause
+- Update the SQL model
+- Re-run tests to confirm fixes
+- Explain the changes made
+
+#### Document Models with AI
+
+```text
+Update my existing models/schema.yml file to add detailed documentation.
+Keep the tests I already added, but enhance the descriptions for the
+customer_analytics model and its columns.
+```
+
+Creates production-ready documentation that:
+- Explains business logic
+- Documents data lineage
+- Clarifies column purposes
+- Helps other team members understand the model
+
+---
+
 ## Example Analytics Prompts
 
 ```text
@@ -233,6 +305,10 @@ Cursor will:
 - AI-assisted schema and role management  
 - Conversational SQL analytics  
 - Production-style database security  
+- dbt model development via prompts
+- AI-assisted data quality testing
+- Automated test fixing with explanations
+- Documentation generation for data models
 - ChatOps for data engineering workflows  
 
 ---
@@ -367,6 +443,38 @@ Keep responses concise but include key metrics (execution times, cache hit %, ro
 Using the Postgres MCP, create ALL the indexes you recommended in your audit. Execute each CREATE INDEX statement and confirm when all indexes are created.
 ```
 
+### 7. Run dbt Model
+
+```
+Using the DBT MCP, run the customer_analytics model 
+and summarize the results concisely in a table.
+```
+
+### 8. Test dbt Model
+
+```
+Using the DBT MCP, run all tests for the customer_analytics model
+and show me the results
+```
+
+### 9. Fix Failing Tests
+
+```
+Fix the failing test(s) in my customer_analytics model. Update the model
+file to resolve the issue and explain what you changed.
+```
+
+### 10. Document dbt Models
+
+```
+Update my existing models/schema.yml file to add detailed documentation.
+Keep the tests I already added, but enhance the descriptions for the
+customer_analytics model and its columns (customer_id, email,
+lifetime_value, customer_segment, total_orders).
+
+Make the descriptions clear and helpful for other data team members.
+```
+
 ## Usage
 
 ### Running the Application
@@ -399,6 +507,13 @@ This project demonstrates the use of MCP tools for:
   - Index recommendations
   - Schema inspection
 
+- **dbt MCP**: Data transformation & modeling
+  - Running dbt models
+  - Executing data quality tests
+  - Building analytical models
+  - Generating documentation
+  - Managing data transformations
+
 ## Database Audit Results
 
 A comprehensive audit was performed on the database, identifying:
@@ -417,6 +532,58 @@ A comprehensive audit was performed on the database, identifying:
 
 All recommended indexes have been created to improve query performance.
 
+## dbt Project Structure
+
+The project includes a dbt project located in `MCP_dbt/`:
+
+```
+MCP_dbt/
+├── models/
+│   └── example/
+│       ├── customer_analytics.sql    # Customer 360 analytics model
+│       ├── my_first_dbt_model.sql    # Example model
+│       ├── my_second_dbt_model.sql   # Example model
+│       └── schema.yml                 # Model documentation & tests
+├── dbt_project.yml                    # dbt project configuration
+└── profiles.yml                        # Database connection settings
+```
+
+### Key dbt Models
+
+#### customer_analytics
+
+A comprehensive customer analytics model that provides:
+- **Lifetime Value**: Total revenue per customer
+- **Order Metrics**: Total orders, average order value, order frequency
+- **Segmentation**: Automatic customer segmentation (inactive, occasional, regular, VIP)
+- **Product Preferences**: Favorite product category per customer
+- **Lifecycle Metrics**: Days since registration, customer lifespan
+
+**Tests Applied:**
+- `not_null` on critical columns
+- `unique` on customer_id
+- `accepted_values` on customer_segment
+
+**Recent Improvements:**
+- Fixed NULL handling for customers with no orders (lifetime_value defaults to 0)
+- Enhanced documentation with detailed column descriptions
+- Production-ready schema documentation
+
+### dbt Documentation Commands
+
+You can build and view dbt documentation for this project from the terminal:
+
+```bash
+# From the project root
+uv run dbt --project-dir MCP_dbt docs generate
+uv run dbt --project-dir MCP_dbt docs serve --port 8080
+```
+
+Then open `http://localhost:8080` in your browser to explore:
+- Model documentation (including `customer_analytics`)
+- Column-level descriptions
+- Tests and lineage
+
 ## Development
 
 ### Python Version
@@ -425,7 +592,14 @@ This project uses Python 3.14 (specified in `.python-version`).
 
 ### Dependencies
 
-See `pyproject.toml` for project dependencies. Currently, the project has no external dependencies.
+See `pyproject.toml` for project dependencies. The project uses:
+- `docker-mcp` for Docker operations
+- `postgres-mcp` for PostgreSQL operations
+- `dbt-postgres` for dbt transformations
+
+### dbt Configuration
+
+The dbt project connects to the `demo` database using the `app` user. Connection details are configured in `MCP_dbt/profiles.yml`.
 
 
 
